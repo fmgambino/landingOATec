@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OATec 2026 | Inscripción Instituto San Miguel</title>
+  <meta name="description" content="Formulario de inscripción a la competencia OATec 2026 del ITBA para alumnos del Instituto San Miguel.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="page-bg"></div>
+
+  <header class="site-header">
+    <div class="container header-content">
+      <div class="brand">
+        <div class="brand-mark">🚀</div>
+        <div class="brand-text">
+          <span class="brand-title">Instituto San Miguel</span>
+          <span class="brand-subtitle">Inscripción oficial · OATec ITBA 2026</span>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <button id="themeToggle" class="toggle-theme" type="button" aria-label="Cambiar tema" title="Cambiar tema">
+          <span class="toggle-track">
+            <span class="toggle-icon">☀️</span>
+            <span class="toggle-icon">🌙</span>
+            <span class="toggle-thumb"></span>
+          </span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="hero-section">
+    <div class="container hero-grid">
+      <section class="hero-copy">
+        <span class="badge">Convocatoria abierta 2026</span>
+        <h1>Inscripción a la competencia <span>OATec del ITBA</span></h1>
+        <p>
+          El Instituto San Miguel abre la inscripción para participar en <strong>OATec 2026</strong>,
+          una experiencia pensada para alumnos con interés en tecnología, creatividad,
+          innovación y trabajo en equipo.
+        </p>
+
+        <div class="highlight-card">
+          <h2>Temática 2026: “Desafío Espacial”</h2>
+          <p>
+            Esta edición invita a imaginar, diseñar y resolver desafíos inspirados en la exploración
+            del espacio. Sumate y representá al Instituto San Miguel en una competencia única.
+          </p>
+        </div>
+
+        <div class="video-card">
+          <div class="video-header">
+            <span class="video-badge">Video promocional</span>
+            <h2>Conocé la propuesta OATec</h2>
+          </div>
+          <div class="video-wrapper">
+            <iframe
+              src="https://www.youtube.com/embed/5Ek1QFVk0hs"
+              title="Video promocional OATec"
+              loading="lazy"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              allowfullscreen>
+            </iframe>
+          </div>
+        </div>
+      </section>
+
+      <section class="form-card">
+        <div class="card-header">
+          <h2>Completá tu inscripción</h2>
+          <p>Ingresá tus datos para postularte a OATec 2026.</p>
+        </div>
+
+        <form id="inscriptionForm" class="inscription-form" novalidate>
+          <div class="grid two-cols">
+            <div class="field">
+              <label for="firstName">Nombres</label>
+              <input type="text" id="firstName" name="firstName" placeholder="Ej.: Juan Ignacio" autocomplete="given-name" required />
+            </div>
+
+            <div class="field">
+              <label for="lastName">Apellidos</label>
+              <input type="text" id="lastName" name="lastName" placeholder="Ej.: Pérez López" autocomplete="family-name" required />
+            </div>
+          </div>
+
+          <div class="grid two-cols">
+            <div class="field">
+              <label for="birthDate">Fecha de nacimiento</label>
+              <input type="date" id="birthDate" name="birthDate" required />
+            </div>
+
+            <div class="field">
+              <label for="age">Edad</label>
+              <input type="number" id="age" name="age" min="12" max="21" placeholder="Ej.: 16" inputmode="numeric" required />
+            </div>
+          </div>
+
+          <div class="grid two-cols">
+            <div class="field">
+              <label for="dni">DNI</label>
+              <input type="text" id="dni" name="dni" placeholder="Ej.: 45123456" inputmode="numeric" maxlength="8" required />
+            </div>
+
+            <div class="field">
+              <label for="course">Curso</label>
+              <select id="course" name="course" required>
+                <option value="">Seleccionar</option>
+                <option value="4">4°</option>
+                <option value="5">5°</option>
+                <option value="6">6°</option>
+                <option value="7">7°</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="grid two-cols">
+            <div class="field">
+              <label for="division">División</label>
+              <select id="division" name="division" required>
+                <option value="">Seleccionar</option>
+                <option value="A">A</option>
+                <option value="B">B</option>
+                <option value="C">C</option>
+              </select>
+            </div>
+
+            <div class="field field-readonly">
+              <label for="themeField">Temática</label>
+              <input type="text" id="themeField" value="Desafío Espacial" readonly />
+            </div>
+          </div>
+
+          <div class="info-panel">
+            <strong>Importante</strong>
+            <p>
+              Verificá que tus datos estén correctos antes de enviar. La información quedará registrada
+              automáticamente en la base de datos de Google Sheets.
+            </p>
+          </div>
+
+          <div class="form-actions">
+            <button class="submit-button" type="submit">Enviar inscripción</button>
+            <button class="secondary-button" type="reset">Limpiar</button>
+          </div>
+
+          <div id="formMessage" class="form-message" role="status" aria-live="polite"></div>
+        </form>
+      </section>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-content">
+      <p><strong>INSTITUTO SAN MIGUEL © 2026</strong></p>
+      <p>by Ing. Prof. Fernando Gambino · Todos los Derechos Reservados.</p>
+      <p>
+        Diseño y Desarrollo by
+        <a href="https://electronicagambino.com" target="_blank" rel="noopener noreferrer">Electrónica Gambino</a>
+      </p>
+
+      <nav class="footer-links" aria-label="Enlaces legales">
+        <a href="#">Aviso Legal</a>
+        <span>|</span>
+        <a href="#">Política de Cookies</a>
+        <span>|</span>
+        <a href="#">Política de Privacidad</a>
+        <span>|</span>
+        <a href="#">Política de Venta</a>
+        <span>|</span>
+        <a href="#">Términos y Condiciones</a>
+      </nav>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
