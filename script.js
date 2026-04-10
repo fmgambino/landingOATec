@@ -1,15 +1,19 @@
-const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycby4J5XhtcyqpFjzB0D3RHPgy_VWCIoK6scH2s81h9NydzwkT7eD6zvHNHgE6v-4tU8/exec";
+const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyqrNBhNjxYwUoa23_LW5A7xUvzM9SwiHYg4TLC9ZgObeIRx48L0RM7nd-fY0bzqsze/exec";
 
 const body = document.body;
 const themeToggle = document.getElementById("themeToggle");
 const form = document.getElementById("inscriptionForm");
+const iframe = document.getElementById("hidden_iframe");
 const messageBox = document.getElementById("formMessage");
 const submitButton = form.querySelector('button[type="submit"]');
 const birthDateInput = document.getElementById("birthDate");
 const ageInput = document.getElementById("age");
 const dniInput = document.getElementById("dni");
+const createdAtField = document.getElementById("createdAtField");
 
 const THEME_KEY = "oatec-theme";
+let submitStarted = false;
+let submitTimeoutId = null;
 
 function applyTheme(theme) {
   body.classList.toggle("dark-theme", theme === "dark");
@@ -18,6 +22,7 @@ function applyTheme(theme) {
 
 function initTheme() {
   const savedTheme = localStorage.getItem(THEME_KEY);
+
   if (savedTheme) {
     applyTheme(savedTheme);
     return;
@@ -35,7 +40,9 @@ function toggleTheme() {
 function showMessage(text, type = "") {
   messageBox.textContent = text;
   messageBox.className = "form-message";
-  if (type) messageBox.classList.add(type);
+  if (type) {
+    messageBox.classList.add(type);
+  }
 }
 
 function calculateAge(birthDate) {
@@ -58,8 +65,7 @@ function calculateAge(birthDate) {
 }
 
 function validateAgeConsistency(birthDate, age) {
-  const calculatedAge = calculateAge(birthDate);
-  return String(calculatedAge) === String(age);
+  return String(calculateAge(birthDate)) === String(age);
 }
 
 function sanitizeDniInput() {
@@ -113,17 +119,23 @@ function validateFormData(data) {
   return true;
 }
 
-function buildFormBody(payload) {
-  const params = new URLSearchParams();
-
-  Object.entries(payload).forEach(([key, value]) => {
-    params.append(key, value ?? "");
-  });
-
-  return params;
+function setSubmittingState(isSubmitting) {
+  submitButton.disabled = isSubmitting;
+  submitButton.textContent = isSubmitting ? "Enviando..." : "Enviar inscripción";
 }
 
-async function handleSubmit(event) {
+function resetSubmissionState() {
+  submitStarted = false;
+
+  if (submitTimeoutId) {
+    clearTimeout(submitTimeoutId);
+    submitTimeoutId = null;
+  }
+
+  setSubmittingState(false);
+}
+
+function handleSubmit(event) {
   event.preventDefault();
 
   const payload = {
@@ -133,44 +145,63 @@ async function handleSubmit(event) {
     birthDate: document.getElementById("birthDate").value,
     dni: document.getElementById("dni").value.trim(),
     course: document.getElementById("course").value,
-    division: document.getElementById("division").value,
-    theme: "Desafío Espacial",
-    institution: "Instituto San Miguel",
-    competition: "OATec ITBA 2026",
-    createdAt: new Date().toISOString()
+    division: document.getElementById("division").value
   };
 
   if (!validateFormData(payload)) return;
 
-  if (!GOOGLE_SCRIPT_URL || GOOGLE_SCRIPT_URL.includes("PEGAR_AQUI")) {
-    showMessage("Configurá la URL pública del Web App de Google Apps Script en script.js.", "error");
+  if (!form) {
+    showMessage("No se encontró el formulario.", "error");
     return;
   }
 
-  submitButton.disabled = true;
-  submitButton.textContent = "Enviando...";
+  if (!iframe) {
+    showMessage("No se encontró el iframe oculto.", "error");
+    return;
+  }
+
+  if (!createdAtField) {
+    showMessage("Falta el campo oculto createdAtField en el HTML.", "error");
+    return;
+  }
+
+  form.action = GOOGLE_SCRIPT_URL;
+  form.method = "POST";
+  form.target = "hidden_iframe";
+
+  createdAtField.value = new Date().toISOString();
+
+  submitStarted = true;
+  setSubmittingState(true);
   showMessage("Enviando inscripción...");
 
   try {
-    await fetch(GOOGLE_SCRIPT_URL, {
-      method: "POST",
-      mode: "no-cors",
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8"
-      },
-      body: buildFormBody(payload)
-    });
-
-    showMessage("Inscripción enviada correctamente. Revisá la Google Sheet en unos segundos.", "success");
-    form.reset();
+    form.submit();
   } catch (error) {
     console.error(error);
-    showMessage("Ocurrió un error al enviar los datos. Revisá la URL del Web App y que el despliegue esté accesible para cualquier usuario.", "error");
-  } finally {
-    submitButton.disabled = false;
-    submitButton.textContent = "Enviar inscripción";
+    resetSubmissionState();
+    showMessage("No se pudo enviar el formulario.", "error");
+    return;
   }
+
+  submitTimeoutId = window.setTimeout(() => {
+    if (!submitStarted) return;
+
+    resetSubmissionState();
+    showMessage(
+      "Formulario enviado. Si no impacta en la planilla, revisá el deployment del Web App y que esté publicado para Anyone.",
+      "error"
+    );
+  }, 8000);
 }
+
+iframe.addEventListener("load", () => {
+  if (!submitStarted) return;
+
+  resetSubmissionState();
+  showMessage("Solicitud enviada. Verificá la planilla para confirmar el registro.", "success");
+  form.reset();
+});
 
 themeToggle.addEventListener("click", toggleTheme);
 birthDateInput.addEventListener("change", autoFillAge);
