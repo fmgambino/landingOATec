@@ -154,10 +154,27 @@ async function sendToSupabase(payload) {
   });
 
   let responseBody = null;
-  try { responseBody = await response.json(); } catch (_e) { responseBody = null; }
+  try {
+    responseBody = await response.json();
+  } catch (_e) {
+    responseBody = null;
+  }
 
   if (!response.ok) {
-    const detail = responseBody?.message || responseBody?.error_description || responseBody?.details || responseBody?.hint || `HTTP ${response.status}`;
+    const detail =
+      responseBody?.message ||
+      responseBody?.error_description ||
+      responseBody?.details ||
+      responseBody?.hint ||
+      `HTTP ${response.status}`;
+
+    if (
+      response.status === 409 ||
+      String(detail).includes("uq_inscripciones_oatec_dni_competition")
+    ) {
+      throw new Error("Ya existe una inscripción registrada con ese DNI para esta competencia.");
+    }
+
     throw new Error(detail);
   }
 
