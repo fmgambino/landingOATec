@@ -1,4 +1,3 @@
-
 const body = document.body;
 const themeToggle = document.getElementById("themeToggle");
 const loginCard = document.getElementById("loginCard");
@@ -20,6 +19,24 @@ const statTotal = document.getElementById("statTotal");
 const statPending = document.getElementById("statPending");
 const statApproved = document.getElementById("statApproved");
 const statRejected = document.getElementById("statRejected");
+
+const recordModal = document.getElementById("recordModal");
+const closeModalButton = document.getElementById("closeModalButton");
+const cancelModalButton = document.getElementById("cancelModalButton");
+const recordForm = document.getElementById("recordForm");
+const modalTitle = document.getElementById("modalTitle");
+const modalMessage = document.getElementById("modalMessage");
+
+const editId = document.getElementById("editId");
+const editFirstName = document.getElementById("editFirstName");
+const editLastName = document.getElementById("editLastName");
+const editBirthDate = document.getElementById("editBirthDate");
+const editAge = document.getElementById("editAge");
+const editDni = document.getElementById("editDni");
+const editCourse = document.getElementById("editCourse");
+const editDivision = document.getElementById("editDivision");
+const editTheme = document.getElementById("editTheme");
+const editStatus = document.getElementById("editStatus");
 
 const THEME_KEY = "oatec-theme";
 const CONFIG = window.SUPABASE_CONFIG || {};
@@ -56,6 +73,12 @@ function showDashboardMessage(text, type = "") {
   dashboardMessage.textContent = text;
   dashboardMessage.className = "form-message";
   if (type) dashboardMessage.classList.add(type);
+}
+
+function showModalMessage(text, type = "") {
+  modalMessage.textContent = text;
+  modalMessage.className = "form-message";
+  if (type) modalMessage.classList.add(type);
 }
 
 function setLoginState(isLoading) {
@@ -194,9 +217,38 @@ function updateStats(records) {
   statRejected.textContent = records.filter((item) => item.status === "rechazado").length;
 }
 
+function getActionIcons(recordId) {
+  return `
+    <div class="action-buttons">
+      <button class="icon-button action-view" type="button" data-id="${recordId}" aria-label="Visualizar">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6-10-6-10-6Z" fill="none" stroke="currentColor" stroke-width="2"/>
+          <circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="2"/>
+        </svg>
+      </button>
+
+      <button class="icon-button action-edit" type="button" data-id="${recordId}" aria-label="Editar">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M4 20h4l10-10-4-4L4 16v4Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+          <path d="M12 6l4 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </button>
+
+      <button class="icon-button action-delete" type="button" data-id="${recordId}" aria-label="Eliminar">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M4 7h16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          <path d="M10 11v6M14 11v6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          <path d="M6 7l1 12h10l1-12" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+          <path d="M9 7V4h6v3" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+        </svg>
+      </button>
+    </div>
+  `;
+}
+
 function renderTable(records) {
   if (!records.length) {
-    recordsTableBody.innerHTML = '<tr><td colspan="8" class="empty-state-cell">No se encontraron inscripciones con los filtros actuales.</td></tr>';
+    recordsTableBody.innerHTML = '<tr><td colspan="9" class="empty-state-cell">No se encontraron inscripciones con los filtros actuales.</td></tr>';
     return;
   }
 
@@ -222,6 +274,7 @@ function renderTable(records) {
           <option value="rechazado" ${record.status === "rechazado" ? "selected" : ""}>Rechazado</option>
         </select>
       </td>
+      <td>${getActionIcons(record.id)}</td>
     </tr>
   `).join("");
 
@@ -231,6 +284,18 @@ function renderTable(records) {
       const newStatus = event.target.value;
       await updateStatus(id, newStatus);
     });
+  });
+
+  recordsTableBody.querySelectorAll(".action-view").forEach((button) => {
+    button.addEventListener("click", () => openRecordModal(button.dataset.id, true));
+  });
+
+  recordsTableBody.querySelectorAll(".action-edit").forEach((button) => {
+    button.addEventListener("click", () => openRecordModal(button.dataset.id, false));
+  });
+
+  recordsTableBody.querySelectorAll(".action-delete").forEach((button) => {
+    button.addEventListener("click", () => deleteRecord(button.dataset.id));
   });
 }
 
@@ -266,6 +331,47 @@ async function loadRecords() {
   }
 }
 
+function openRecordModal(id, readOnly = false) {
+  const record = allRecords.find((item) => String(item.id) === String(id));
+  if (!record) return;
+
+  editId.value = record.id;
+  editFirstName.value = record.first_name || "";
+  editLastName.value = record.last_name || "";
+  editBirthDate.value = record.birth_date || "";
+  editAge.value = record.age ?? "";
+  editDni.value = record.dni || "";
+  editCourse.value = record.course || "";
+  editDivision.value = record.division || "";
+  editTheme.value = record.theme || "";
+  editStatus.value = record.status || "pendiente";
+
+  [
+    editFirstName,
+    editLastName,
+    editBirthDate,
+    editAge,
+    editDni,
+    editCourse,
+    editDivision,
+    editTheme,
+    editStatus
+  ].forEach((field) => {
+    field.disabled = readOnly;
+  });
+
+  modalTitle.textContent = readOnly ? "Visualizar inscripción" : "Editar inscripción";
+  recordForm.querySelector('button[type="submit"]').style.display = readOnly ? "none" : "";
+  showModalMessage("");
+  recordModal.classList.remove("hidden");
+}
+
+function closeRecordModal() {
+  recordModal.classList.add("hidden");
+  recordForm.reset();
+  showModalMessage("");
+}
+
 async function updateStatus(id, status) {
   showDashboardMessage("Actualizando estado...");
   const client = getSupabaseClient();
@@ -287,6 +393,69 @@ async function updateStatus(id, status) {
     console.error(error);
     showDashboardMessage(`No se pudo actualizar el estado: ${error.message}`, "error");
     await loadRecords();
+  }
+}
+
+async function handleRecordSave(event) {
+  event.preventDefault();
+  const client = getSupabaseClient();
+  const id = editId.value;
+
+  const payload = {
+    first_name: editFirstName.value.trim(),
+    last_name: editLastName.value.trim(),
+    birth_date: editBirthDate.value,
+    age: Number(editAge.value),
+    dni: editDni.value.trim(),
+    course: editCourse.value,
+    division: editDivision.value,
+    theme: editTheme.value.trim(),
+    status: editStatus.value
+  };
+
+  showModalMessage("Guardando cambios...");
+
+  try {
+    const { error } = await client
+      .from(CONFIG.TABLE_NAME)
+      .update(payload)
+      .eq("id", id);
+
+    if (error) throw error;
+
+    showModalMessage("Registro actualizado correctamente.", "success");
+    await loadRecords();
+    setTimeout(closeRecordModal, 600);
+  } catch (error) {
+    console.error(error);
+    showModalMessage(`No se pudo guardar: ${error.message}`, "error");
+  }
+}
+
+async function deleteRecord(id) {
+  const record = allRecords.find((item) => String(item.id) === String(id));
+  if (!record) return;
+
+  const ok = window.confirm(`¿Eliminar la inscripción de ${record.first_name} ${record.last_name}?`);
+  if (!ok) return;
+
+  showDashboardMessage("Eliminando inscripción...");
+  const client = getSupabaseClient();
+
+  try {
+    const { error } = await client
+      .from(CONFIG.TABLE_NAME)
+      .delete()
+      .eq("id", id);
+
+    if (error) throw error;
+
+    allRecords = allRecords.filter((item) => String(item.id) !== String(id));
+    refreshView();
+    showDashboardMessage("Inscripción eliminada correctamente.", "success");
+  } catch (error) {
+    console.error(error);
+    showDashboardMessage(`No se pudo eliminar: ${error.message}`, "error");
   }
 }
 
@@ -345,7 +514,7 @@ async function handleLogout() {
   const client = getSupabaseClient();
   await client.auth.signOut();
   allRecords = [];
-  recordsTableBody.innerHTML = '<tr><td colspan="8" class="empty-state-cell">Sesión cerrada.</td></tr>';
+  recordsTableBody.innerHTML = '<tr><td colspan="9" class="empty-state-cell">Sesión cerrada.</td></tr>';
   loginCard.classList.remove("hidden");
   dashboardSection.classList.add("hidden");
   showLoginMessage("Sesión cerrada.", "success");
@@ -359,6 +528,12 @@ logoutButton.addEventListener("click", handleLogout);
 searchInput.addEventListener("input", refreshView);
 statusFilter.addEventListener("change", refreshView);
 courseFilter.addEventListener("change", refreshView);
+recordForm.addEventListener("submit", handleRecordSave);
+closeModalButton.addEventListener("click", closeRecordModal);
+cancelModalButton.addEventListener("click", closeRecordModal);
+recordModal.addEventListener("click", (event) => {
+  if (event.target === recordModal) closeRecordModal();
+});
 
 initTheme();
 ensureSession();
