@@ -148,7 +148,7 @@ async function sendToSupabase(payload) {
       "Content-Type": "application/json",
       "apikey": CONFIG.SUPABASE_ANON_KEY,
       "Authorization": `Bearer ${CONFIG.SUPABASE_ANON_KEY}`,
-      "Prefer": "return=representation"
+      "Prefer": "return=minimal"
     },
     body: JSON.stringify(payload)
   });

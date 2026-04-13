@@ -160,8 +160,7 @@ async function sendToSupabase(payload) {
     const detail = responseBody?.message || responseBody?.error_description || responseBody?.details || responseBody?.hint || `HTTP ${response.status}`;
     throw new Error(detail);
   }
-
-  return true;
+  return responseBody;
 }
 
 async function handleSubmit(event) {
