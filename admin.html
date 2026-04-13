@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OATec 2026 | Panel Administrador</title>
+  <meta name="description" content="Panel administrador para ver las inscripciones OATec 2026 almacenadas en Supabase." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="shortcut icon" href="https://i.ibb.co/zVLJxV3p/logo-Coordinacion-Robotica.png" type="image/x-icon" />
+</head>
+<body class="admin-body">
+  <div class="page-bg"></div>
+
+  <header class="site-header">
+    <div class="container header-content">
+      <div class="brand">
+        <div class="brand-logo">
+          <img src="https://i.ibb.co/zVLJxV3p/logo-Coordinacion-Robotica.png" alt="Logo Instituto San Miguel" width="50" height="50" />
+        </div>
+        <div class="brand-text">
+          <span class="brand-title">Instituto San Miguel</span>
+          <span class="brand-subtitle">Panel Administrador · OATec ITBA 2026</span>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <a class="header-link" href="index.html">Volver al formulario</a>
+        <button id="themeToggle" class="toggle-theme" type="button" aria-label="Cambiar tema" title="Cambiar tema">
+          <span class="toggle-track">
+            <span class="toggle-icon">☀️</span>
+            <span class="toggle-icon">🌙</span>
+            <span class="toggle-thumb"></span>
+          </span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="admin-main">
+    <div class="container admin-grid">
+      <section id="loginCard" class="glass-card login-card">
+        <span class="badge">Acceso seguro</span>
+        <h1>Ingresar al panel</h1>
+        <p class="muted">
+          Usá el usuario <strong>admin</strong> y la contraseña configurada en Supabase Auth.
+        </p>
+
+        <form id="loginForm" class="inscription-form" novalidate>
+          <div class="field">
+            <label for="loginUser">Usuario</label>
+            <input type="text" id="loginUser" placeholder="admin" autocomplete="username" required />
+          </div>
+
+          <div class="field">
+            <label for="loginPassword">Contraseña</label>
+            <input type="password" id="loginPassword" placeholder="••••••••" autocomplete="current-password" required />
+          </div>
+
+          <div class="form-actions">
+            <button class="submit-button" type="submit" id="loginButton">Ingresar</button>
+          </div>
+
+          <div id="loginMessage" class="form-message" role="status" aria-live="polite"></div>
+        </form>
+      </section>
+
+      <section id="dashboardSection" class="admin-dashboard hidden">
+        <div class="dashboard-top">
+          <div class="glass-card dashboard-welcome">
+            <div>
+              <span class="badge">Administrador autenticado</span>
+              <h1>Inscripciones recibidas</h1>
+              <p class="muted">Podés buscar, filtrar, exportar a CSV y cambiar el estado de cada inscripción.</p>
+            </div>
+            <div class="dashboard-actions">
+              <button id="refreshButton" class="secondary-button" type="button">Actualizar</button>
+              <button id="exportButton" class="secondary-button" type="button">Exportar CSV</button>
+              <button id="logoutButton" class="submit-button danger-button" type="button">Cerrar sesión</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="stats-grid">
+          <div class="stat-card">
+            <span class="stat-label">Total</span>
+            <strong id="statTotal">0</strong>
+          </div>
+          <div class="stat-card">
+            <span class="stat-label">Pendientes</span>
+            <strong id="statPending">0</strong>
+          </div>
+          <div class="stat-card">
+            <span class="stat-label">Aprobados</span>
+            <strong id="statApproved">0</strong>
+          </div>
+          <div class="stat-card">
+            <span class="stat-label">Rechazados</span>
+            <strong id="statRejected">0</strong>
+          </div>
+        </div>
+
+        <div class="glass-card filters-card">
+          <div class="grid three-cols filters-grid">
+            <div class="field">
+              <label for="searchInput">Buscar</label>
+              <input type="text" id="searchInput" placeholder="Nombre, apellido o DNI" />
+            </div>
+            <div class="field">
+              <label for="statusFilter">Estado</label>
+              <select id="statusFilter">
+                <option value="">Todos</option>
+                <option value="pendiente">Pendiente</option>
+                <option value="aprobado">Aprobado</option>
+                <option value="rechazado">Rechazado</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="courseFilter">Curso</label>
+              <select id="courseFilter">
+                <option value="">Todos</option>
+                <option value="4">4°</option>
+                <option value="5">5°</option>
+                <option value="6">6°</option>
+                <option value="7">7°</option>
+              </select>
+            </div>
+          </div>
+          <div id="dashboardMessage" class="form-message" role="status" aria-live="polite"></div>
+        </div>
+
+        <div class="glass-card table-card">
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Fecha</th>
+                  <th>Alumno</th>
+                  <th>Edad</th>
+                  <th>DNI</th>
+                  <th>Curso</th>
+                  <th>Div.</th>
+                  <th>Temática</th>
+                  <th>Estado</th>
+                </tr>
+              </thead>
+              <tbody id="recordsTableBody">
+                <tr>
+                  <td colspan="8" class="empty-state-cell">Todavía no hay datos cargados.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="config.js"></script>
+  <script src="admin.js"></script>
+</body>
+</html>
