@@ -12,7 +12,7 @@ o bien la política existe pero no permite ese insert.
 
 ## Cómo corregirlo
 
-1. Abrí tu proyecto de Supabase.
+1. Abrí tu proyecto de Supabase en negociosfacilito@gmail.com
 2. Entrá en **SQL Editor**.
 3. Ejecutá completo el archivo `supabase_schema_fix.sql`.
 4. Volvé a probar el formulario.

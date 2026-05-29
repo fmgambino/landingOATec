@@ -1,6 +1,6 @@
 window.SUPABASE_CONFIG = {
-  SUPABASE_URL: "https://shlmmmxcebnzgezdqvfh.supabase.co",
-  SUPABASE_ANON_KEY: "sb_publishable_f5K_EzTWywxwXClhtdLqqQ_geQoGqDp",
+  SUPABASE_URL: "https://zdhbnqnokcdvynlnbhln.supabase.co",
+  SUPABASE_ANON_KEY: "sb_publishable_9SsRAecRxt5fneiphQlQlA_bRj2VduT",
   TABLE_NAME: "inscripciones_oatec",
 
   // Login visual del panel admin
